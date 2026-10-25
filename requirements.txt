@@ -1,0 +1,6 @@
+pyspark==3.5.3
+boto3
+requests
+python-dotenv
+minio
+duckdb

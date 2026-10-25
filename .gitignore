@@ -1,0 +1,43 @@
+.env
+.env.*
+!.env.example
+
+# Local Python environments and packaging output
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Test and type-checking caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Airflow and generated runtime files
+airflow.cfg
+airflow.db
+airflow-webserver.pid
+logs/
+airflow-logs/
+
+# Generated data and local storage
+data/
+artifacts/
+*.csv.tmp
+*.parquet
+*.snappy
+
+# IDE and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
