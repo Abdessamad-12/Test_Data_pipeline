@@ -57,7 +57,7 @@ docker compose up -d --build
 
 Aucun fichier `.env` n'est nécessaire : les valeurs par défaut sont dans le compose. Pour les surcharger, copier `.env.example` en `.env`.
 
-Le DAG `taxi_pipeline` se déclenche **tout seul au démarrage** (`schedule="@once"`). Le run complet dure environ **18 minutes**.
+Le DAG `taxi_pipeline` se déclenche **tout seul au démarrage** (`schedule="@once"`). Le run complet dure environ **15 minutes**.
 
 | Service | URL | Accès |
 |---|---|---|
