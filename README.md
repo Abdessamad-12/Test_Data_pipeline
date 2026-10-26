@@ -183,7 +183,6 @@ FROM daily_revenue GROUP BY 1 ORDER BY 1;
 - **Exploitation** : alertes sur échec de tâche, contrôles de fraîcheur, gestion des secrets (pas d'identifiants par défaut), image Airflow épinglée par digest.
 - **Tests automatisés et CI** : tests unitaires (`month_bounds`, règles qualité sur un petit DataFrame), lint, build de l'image et exécution du pipeline sur un échantillon dans GitHub Actions.
 - **Qualité du référentiel** : vérifier le fichier des 77 zones contre la source officielle de la Ville de Chicago.
-- **Cluster Spark** (standalone, Kubernetes ou Databricks) pour séparer calcul et orchestration.
 
 ---------
 ## 8. Contraintes de ressources
