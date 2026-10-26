@@ -170,17 +170,11 @@ FROM daily_revenue GROUP BY 1 ORDER BY 1;
 
 | Stack | Raison |
 |---|---|
-| **Airflow** (LocalExecutor + PostgreSQL) | Orchestrateur standard, DAG lisible, relance par tâche |
-| **PySpark en `local[*]`** dans le conteneur Airflow | Un seul Dockerfile, démarrage rapide, aucun cluster à maintenir. Le code ne dépend pas du mode : passer à un cluster ne change que le `master` de la session |
+| **Airflow**  | Orchestrateur standard, DAG lisible, relance par tâche |
+| **PySpark | Démarrage rapide, aucun cluster à maintenir. Le code ne dépend pas du mode : passer à un cluster ne change que le `master` de la session |
 | **MinIO** comme stockage objet | Datalake local compatible avec le connecteur Hadoop S3A (`s3a://`) |
 | **Parquet** pour silver et gold | Colonnaire, compressé, typé |
-| **Schéma explicite, sans `inferSchema`** | Évite une lecture supplémentaire du CSV et garantit des types stables |
-| **`partitionOverwriteMode=dynamic`** | Relancer un mois ne réécrit que ce mois : pipeline idempotent |
-| **Une seule table silver, qualité par filtrage** | Silver propre et simple. Le nombre de lignes écartées est tracé dans les logs |
-| **Jars S3A dans l'image** | Pas de téléchargement `spark.jars.packages` à chaque session : build reproductible |
-| **`@once` + période dans `config.py`** | `docker compose up` suffit, sans clic dans l'interface |
 | **DuckDB + Streamlit** pour l'exposition | Couche SQL légère qui lit les Parquet sans Spark, une image séparée de quelques centaines de Mo |
-| **Configuration par variables d'environnement** | Même code en local et dans Docker : seul `MINIO_ENDPOINT` diffère (`localhost` ou `minio`) |
 
 ---
 
@@ -194,3 +188,23 @@ FROM daily_revenue GROUP BY 1 ORDER BY 1;
 - **Exposition** : Trino ou Superset pour un accès SQL et BI multi-utilisateurs, avec une API REST (FastAPI) sur les agrégats.
 - **Exploitation** : alertes sur échec de tâche, contrôles de fraîcheur, gestion des secrets (pas d'identifiants par défaut), image Airflow épinglée par digest.
 - **Qualité du référentiel** : vérifier le fichier des 77 zones contre la source officielle de la Ville de Chicago.
+
+---------
+## 8. Contraintes de ressources
+
+### Problème rencontré
+
+Spark tourne en mode local : le driver et les tâches d'exécution partagent la mémoire de la machine. Avec la configuration par défaut (`local[*]`, 200 partitions de shuffle, mémoire non plafonnée), le traitement de 1,45 million de lignes saturait les ressources de WSL :
+
+### La solution que j'ai fait
+
+Les réglages sont centralisés dans `src/common/spark_session.py`, donc appliqués à tous les jobs :
+
+- 2 tâches en parallèle au lieu de tous les cœurs : moins de mémoire et de CPU consommés en même temps.
+- Protège contre un `collect()` trop volumineux.
+- Remplace les 200 partitions par défaut, adaptées à un cluster et non à une seule machine.
+- Lecture par petits blocs : chaque tâche manipule moins de données à la fois.
+- Limite le nombre de connexions simultanées vers MinIO.
+
+**!!** : Cela qui rend le job **plus lent**, mais le pipeline termine de façon fiable sur une machine de 8 Go (durée mesurée du run complet : **13 minutes**). 
+
