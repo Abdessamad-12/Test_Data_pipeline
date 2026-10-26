@@ -177,14 +177,13 @@ FROM daily_revenue GROUP BY 1 ORDER BY 1;
 
 ## 7. Ce que je ferais avec plus de temps
 
-- **Qualité de données** : tests déclaratifs avec Great Expectations, et table des lignes rejetées avec le motif (`reject_reason`) pour auditer les écarts.
+- **Qualité de données** : tests déclaratifs avec Great Expectations ou autre, et table des lignes rejetées avec le motif (`reject_reason`) pour auditer les écarts.
 - **Format de table transactionnel** (Delta Lake ou Iceberg) : `MERGE` pour des mises à jour incrémentales, *time travel*, évolution de schéma.
 - **Ingestion incrémentale** : un run mensuel planifié (`@monthly`, avec `catchup`) au lieu d'une tranche fixe.
-- **Cluster Spark** (standalone, Kubernetes ou Databricks) pour séparer calcul et orchestration.
-- **Tests automatisés et CI** : tests unitaires (`month_bounds`, règles qualité sur un petit DataFrame), lint, build de l'image et exécution du pipeline sur un échantillon dans GitHub Actions.
-- **Exposition** : Trino ou Superset pour un accès SQL et BI multi-utilisateurs, avec une API REST (FastAPI) sur les agrégats.
 - **Exploitation** : alertes sur échec de tâche, contrôles de fraîcheur, gestion des secrets (pas d'identifiants par défaut), image Airflow épinglée par digest.
+- **Tests automatisés et CI** : tests unitaires (`month_bounds`, règles qualité sur un petit DataFrame), lint, build de l'image et exécution du pipeline sur un échantillon dans GitHub Actions.
 - **Qualité du référentiel** : vérifier le fichier des 77 zones contre la source officielle de la Ville de Chicago.
+- **Cluster Spark** (standalone, Kubernetes ou Databricks) pour séparer calcul et orchestration.
 
 ---------
 ## 8. Contraintes de ressources
