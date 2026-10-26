@@ -1,7 +1,3 @@
-"""Ingestion bronze : Chicago Taxi Trips (API SODA) -> MinIO bronze/taxi_trips/
-
-Usage : python -m ingestion.api_soda --start 2023-01 --end 2023-03
-"""
 import argparse
 import io
 import logging
