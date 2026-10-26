@@ -191,7 +191,7 @@ FROM daily_revenue GROUP BY 1 ORDER BY 1;
 
 ### Problème rencontré
 
-Spark tourne en mode local : le driver et les tâches d'exécution partagent la mémoire de la machine. Avec la configuration par défaut (`local[*]`, 200 partitions de shuffle, mémoire non plafonnée), le traitement de 1,45 million de lignes saturait les ressources de WSL :
+Spark tourne en mode local : le driver et les tâches d'exécution partagent la mémoire de la machine. Avec la configuration par défaut (`local[*]`, 200 partitions de shuffle, mémoire non plafonnée), le traitement de 1,45 million de lignes saturait les ressources de WSL.
 
 ### La solution que j'ai fait
 
