@@ -50,7 +50,7 @@ Un fichier écrit à la même clé est écrasé : relancer l'ingestion ne crée 
 
 ```bash
 git clone https://github.com/Abdessamad-12/Test_Data_pipeline.git
-cd <repo>
+cd Test_Data_pipeline
 rm .env.example .env
 docker compose up -d --build
 ```
