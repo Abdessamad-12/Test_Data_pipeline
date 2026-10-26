@@ -1,7 +1,3 @@
-"""Silver -> Gold : agrégats métier pour la BI.
-
-Usage : python -m transformation.silver_to_gold
-"""
 import logging
 from pathlib import Path
 
