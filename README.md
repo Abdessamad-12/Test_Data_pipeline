@@ -166,51 +166,25 @@ FROM daily_revenue GROUP BY 1 ORDER BY 1;
 
 ---
 
-## 6. Choix techniques et arbitrages
+## 6. Choix techniques
 
-| Choix | Raison | Arbitrage |
-|---|---|---|
-| **Airflow** (LocalExecutor + PostgreSQL) | Orchestrateur standard, DAG lisible, relance par tâche | Pas de Celery ni de Kubernetes : inutile pour un pipeline unique |
-| **PySpark en `local[*]`** dans le conteneur Airflow | Un seul Dockerfile, démarrage rapide, aucun cluster à maintenir. Le code ne dépend pas du mode : passer à un cluster ne change que le `master` de la session | Airflow et Spark partagent la mémoire : `spark.driver.memory` est limité à 3 Go |
-| **MinIO** comme stockage objet | Datalake local compatible avec le connecteur Hadoop S3A (`s3a://`) | Un seul nœud, sans réplication |
-| **Parquet** pour silver et gold | Colonnaire, compressé, typé | Pas de format transactionnel (Delta / Iceberg) |
-| **Schéma explicite, sans `inferSchema`** | Évite une lecture supplémentaire du CSV et garantit des types stables | Liste de colonnes à maintenir |
-| **`partitionOverwriteMode=dynamic`** | Relancer un mois ne réécrit que ce mois : pipeline idempotent | : |
-| **Une seule table silver, qualité par filtrage** | Silver propre et simple. Le nombre de lignes écartées est tracé dans les logs | Les lignes rejetées ne sont pas conservées (voir améliorations) |
-| **Jars S3A dans l'image** | Pas de téléchargement `spark.jars.packages` à chaque session : build reproductible | Image plus lourde |
-| **`@once` + période dans `config.py`** | `docker compose up` suffit, sans clic dans l'interface | Changer de période demande de modifier `config.py` |
-| **DuckDB + Streamlit** pour l'exposition | Couche SQL légère qui lit les Parquet sans Spark, une image séparée de quelques centaines de Mo | Pas de serveur SQL multi-utilisateurs (Trino) ni d'outil BI complet (Superset) |
-| **Configuration par variables d'environnement** | Même code en local et dans Docker : seul `MINIO_ENDPOINT` diffère (`localhost` ou `minio`) | : |
-
----
-
-## 7. Exécution en local (hors Docker)
-
-Utile pour développer et déboguer un job Spark seul.
-
-```bash
-python -m venv .venv && source .venv/bin/activate
-sudo apt install -y openjdk-17-jre-headless        # Java 17 pour Spark
-pip install -r requirements.txt duckdb streamlit plotly pandas
-
-# jars du connecteur S3A (identique au Dockerfile)
-JARS=$(python -c 'import pyspark,os;print(os.path.join(os.path.dirname(pyspark.__file__),"jars"))')
-curl -fsSL -o $JARS/hadoop-aws-3.3.4.jar https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar
-curl -fsSL -o $JARS/aws-java-sdk-bundle-1.12.262.jar https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar
-
-cp .env.example .env
-docker compose up -d minio                         # seul MinIO est nécessaire
-export PYTHONPATH=$PWD/src
-
-python -m ingestion.api_soda
-python -m transformation.bronze_to_silver
-python -m transformation.silver_to_gold
-streamlit run src/serving/dashboard.py
-```
+| Stack | Raison |
+|---|---|
+| **Airflow** (LocalExecutor + PostgreSQL) | Orchestrateur standard, DAG lisible, relance par tâche |
+| **PySpark en `local[*]`** dans le conteneur Airflow | Un seul Dockerfile, démarrage rapide, aucun cluster à maintenir. Le code ne dépend pas du mode : passer à un cluster ne change que le `master` de la session |
+| **MinIO** comme stockage objet | Datalake local compatible avec le connecteur Hadoop S3A (`s3a://`) |
+| **Parquet** pour silver et gold | Colonnaire, compressé, typé |
+| **Schéma explicite, sans `inferSchema`** | Évite une lecture supplémentaire du CSV et garantit des types stables |
+| **`partitionOverwriteMode=dynamic`** | Relancer un mois ne réécrit que ce mois : pipeline idempotent |
+| **Une seule table silver, qualité par filtrage** | Silver propre et simple. Le nombre de lignes écartées est tracé dans les logs |
+| **Jars S3A dans l'image** | Pas de téléchargement `spark.jars.packages` à chaque session : build reproductible |
+| **`@once` + période dans `config.py`** | `docker compose up` suffit, sans clic dans l'interface |
+| **DuckDB + Streamlit** pour l'exposition | Couche SQL légère qui lit les Parquet sans Spark, une image séparée de quelques centaines de Mo |
+| **Configuration par variables d'environnement** | Même code en local et dans Docker : seul `MINIO_ENDPOINT` diffère (`localhost` ou `minio`) |
 
 ---
 
-## 8. Ce que je ferais avec plus de temps
+## 7. Ce que je ferais avec plus de temps
 
 - **Qualité de données** : tests déclaratifs avec Great Expectations, et table des lignes rejetées avec le motif (`reject_reason`) pour auditer les écarts.
 - **Format de table transactionnel** (Delta Lake ou Iceberg) : `MERGE` pour des mises à jour incrémentales, *time travel*, évolution de schéma.
@@ -220,15 +194,3 @@ streamlit run src/serving/dashboard.py
 - **Exposition** : Trino ou Superset pour un accès SQL et BI multi-utilisateurs, avec une API REST (FastAPI) sur les agrégats.
 - **Exploitation** : alertes sur échec de tâche, contrôles de fraîcheur, gestion des secrets (pas d'identifiants par défaut), image Airflow épinglée par digest.
 - **Qualité du référentiel** : vérifier le fichier des 77 zones contre la source officielle de la Ville de Chicago.
-
----
-
-## 9. Dépannage
-
-| Symptôme | Cause probable | Action |
-|---|---|---|
-| `Connection refused` vers `localhost:9000` dans une tâche | `MINIO_ENDPOINT` mal défini dans le conteneur | `docker compose exec airflow-scheduler env \| grep MINIO_ENDPOINT` doit afficher `http://minio:9000` |
-| `OutOfMemoryError` ou conteneur tué | Moins de 8 Go alloués à Docker | Augmenter la mémoire (`.wslconfig` sous WSL) |
-| Dashboard : « couche gold vide » | Le DAG n'est pas terminé | Attendre la fin du run, puis rafraîchir |
-| Erreurs 429 de l'API SODA | Limite de débit sans token | Ajouter `SODA_APP_TOKEN` dans `.env` |
-| `ModuleNotFoundError` dans une tâche | Image construite avec d'anciennes dépendances | `docker compose build --no-cache` |
