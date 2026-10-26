@@ -142,12 +142,14 @@ Lecture CSV **sans `inferSchema`** (tout en texte, puis `cast` explicite colonne
 | Déduplication | `dropDuplicates(["trip_id"])` |
 | Écriture | Parquet partitionné `year/month`, écrasement dynamique des partitions |
 
-Bilan sur le trimestre : **1 446 439** lignes brutes → **1 274 071** lignes silver (environ 12 % écartées par les règles qualité, 0 doublon). Les seuils sont choisis à partir de la distribution observée (durée max de 24 h, distance max de 899 miles, montant max de 9 124 $ avant filtrage) et modifiables en une ligne dans les constantes de `bronze_to_silver.py`.
+Bilan sur le trimestre : **1 446 439** lignes brutes → **1 274 071** lignes silver (environ 12 % écartées par les règles qualité, 0 doublon). 
 
 ### Gold : jointures et agrégations métier
 - La durée moyenne est calculée sur `trip_seconds` et non sur `fin - début` : **le dataset arrondit les horodatages à 15 minutes** (de nombreux trajets ont `début = fin`).
-- La table de zones (77 lignes) est jointe avec un **`broadcast join`** : aucun shuffle de la silver. Dans `top_routes`, l'agrégation précède la jointure, qui se fait donc sur quelques milliers de couples de zones et non sur 1,3 million de trajets.
-- Les trajets sans zone de prise en charge (≈ 72 000, zones masquées par la ville de Chicago pour la confidentialité) sont conservés dans les revenus et les durées, et exclus du classement des zones. Leur nombre est écrit dans les logs.
+- La table de zones (77 lignes) est jointe avec un **`broadcast join`** : aucun shuffle de la silver.
+
+- Dans `top_routes`, l'agrégation précède la jointure, qui se fait donc sur quelques milliers de couples de zones et non sur 1,3 million de trajets.
+
 - Contrôle de cohérence : la somme des trajets de `daily_revenue` est égale au nombre de lignes de la silver (écart 0).
 
 ### Exposition : SQL et dashboard
