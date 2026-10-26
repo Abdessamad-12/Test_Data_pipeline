@@ -1,7 +1,4 @@
-"""Dashboard : visualisation de la couche gold via DuckDB.
 
-Usage local : PYTHONPATH=src streamlit run src/serving/dashboard.py
-"""
 import duckdb
 import plotly.express as px
 import streamlit as st
