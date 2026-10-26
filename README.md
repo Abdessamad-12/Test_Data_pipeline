@@ -46,21 +46,19 @@ Un fichier écrit à la même clé est écrasé : relancer l'ingestion ne crée 
 
 ## 3. Lancement (pas à pas)
 
-### Prérequis
-
-- Docker et Docker Compose.
-- **8 Go de RAM alloués à Docker** (Spark tourne dans le conteneur Airflow). Sous WSL : `memory=8GB` dans `C:\Users\<nom>\.wslconfig`, puis `wsl --shutdown`.
-- Accès internet (API SODA, téléchargement des images et des jars au build).
-
 ### Commandes
 
 ```bash
-git clone <url-du-repo>
+git clone https://github.com/Abdessamad-12/Test_Data_pipeline.git
 cd <repo>
 docker compose up -d --build
 ```
 
 Aucun fichier `.env` n'est nécessaire : les valeurs par défaut sont dans le compose. Pour les surcharger, copier `.env.example` en `.env`.
+
+```bash
+rm .env.example .env
+```
 
 Le DAG `taxi_pipeline` se déclenche **tout seul au démarrage** (`schedule="@once"`). Le run complet dure environ **18 minutes**.
 
