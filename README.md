@@ -208,3 +208,5 @@ Les réglages sont centralisés dans `src/common/spark_session.py`, donc appliqu
 
 **!!** : Cela rend le job un peu **plus lent**, mais le pipeline termine de façon fiable sur une machine de 8 Go (durée mesurée du run complet : **15 minutes**). 
 
+**Machine avec plus de 8 Go de RAM** : augmenter le parallélisme (`local[4]`, la mémoire du driver (`spark.driver.memory` ) et le nombre de partitions de shuffle (`spark.sql.shuffle.partitions`) réduit le temps d'exécution.
+
