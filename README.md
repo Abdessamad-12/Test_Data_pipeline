@@ -31,7 +31,7 @@ Tout démarre avec une seule commande : `docker compose up -d --build`.
 ## 2. Données
 
 - **Source** : [Chicago Taxi Trips 2013-2023](https://data.cityofchicago.org/Transportation/Taxi-Trips-2013-2023-/wrvz-psew), via l'API SODA.
-- **Période** : **janvier à mars 2023** (filtre sur `trip_start_timestamp`), soit environ **1,45 million de lignes**.
+- **Période** : **2023-01 à 2023-03**  (filtre sur `trip_start_timestamp`), soit environ **1,45 million de lignes**.
 - **Téléchargement** : fait par le pipeline lui-même (tâche `ingest_bronze`), mois par mois, en pages de 50 000 lignes triées sur `:id` (pagination stable), avec reprise automatique sur erreur réseau ou limite de débit.
 - **Reproductibilité** : la période est définie dans `src/common/config.py` (`START_MONTH`, `END_MONTH`). Le même téléchargement peut être lancé à la main :
 
