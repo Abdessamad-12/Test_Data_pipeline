@@ -1,4 +1,3 @@
-"""DAG : SODA -> bronze -> silver -> gold (datalake MinIO). Lancé une fois au démarrage (@once)."""
 from datetime import datetime, timedelta
 
 from airflow.decorators import dag, task
