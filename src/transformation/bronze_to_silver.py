@@ -1,7 +1,3 @@
-"""Bronze -> Silver : parsing, typage, normalisation, contrôle qualité, déduplication.
-
-Usage : python -m transformation.bronze_to_silver
-"""
 import logging
 
 from pyspark.sql import DataFrame, functions as F
