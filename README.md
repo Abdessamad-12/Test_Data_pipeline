@@ -8,7 +8,7 @@ Tout démarre avec une seule commande : `docker compose up -d --build`.
 
 ## 1. Architecture
 
-![Architecture du pipeline](<Architecture.drawio (2).png>)
+![Architecture du pipeline](<images/Architecture.drawio (2).png>)
 
 | Couche | Chemin MinIO | Contenu |
 |---|---|---|
@@ -159,6 +159,8 @@ Exemple :
 SELECT date_trunc('month', trip_date) AS month, SUM(trips) AS trips, ROUND(SUM(total_revenue), 0) AS revenue
 FROM daily_revenue GROUP BY 1 ORDER BY 1;
 ```
+
+![SQL libre](<images/sql libre.png>)
 
 ---
 
