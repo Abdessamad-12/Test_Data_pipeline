@@ -1,7 +1,3 @@
-"""Couche d'exposition SQL : DuckDB lit les tables gold (Parquet) directement dans MinIO.
-
-Usage : python -m serving.sql_engine "SELECT * FROM daily_revenue LIMIT 5"
-"""
 import sys
 from urllib.parse import urlparse
 
