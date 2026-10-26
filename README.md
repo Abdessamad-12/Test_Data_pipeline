@@ -171,7 +171,7 @@ FROM daily_revenue GROUP BY 1 ORDER BY 1;
 | Stack | Raison |
 |---|---|
 | **Airflow**  | Orchestrateur standard, DAG lisible, relance par tâche |
-| **PySpark | Démarrage rapide, aucun cluster à maintenir. Le code ne dépend pas du mode : passer à un cluster ne change que le `master` de la session |
+| **PySpark** | Démarrage rapide, aucun cluster à maintenir. Le code ne dépend pas du mode : passer à un cluster ne change que le `master` de la session |
 | **MinIO** comme stockage objet | Datalake local compatible avec le connecteur Hadoop S3A (`s3a://`) |
 | **Parquet** pour silver et gold | Colonnaire, compressé, typé |
 | **DuckDB + Streamlit** pour l'exposition | Couche SQL légère qui lit les Parquet sans Spark, une image séparée de quelques centaines de Mo |
