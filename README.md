@@ -206,5 +206,5 @@ Les réglages sont centralisés dans `src/common/spark_session.py`, donc appliqu
 - Lecture par petits blocs : chaque tâche manipule moins de données à la fois.
 - Limite le nombre de connexions simultanées vers MinIO.
 
-**!!** : Cela qui rend le job **plus lent**, mais le pipeline termine de façon fiable sur une machine de 8 Go (durée mesurée du run complet : **13 minutes**). 
+**!!** : Cela rend le job un peu **plus lent**, mais le pipeline termine de façon fiable sur une machine de 8 Go (durée mesurée du run complet : **15 minutes**). 
 
