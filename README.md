@@ -51,14 +51,11 @@ Un fichier écrit à la même clé est écrasé : relancer l'ingestion ne crée 
 ```bash
 git clone https://github.com/Abdessamad-12/Test_Data_pipeline.git
 cd <repo>
+rm .env.example .env
 docker compose up -d --build
 ```
 
 Aucun fichier `.env` n'est nécessaire : les valeurs par défaut sont dans le compose. Pour les surcharger, copier `.env.example` en `.env`.
-
-```bash
-rm .env.example .env
-```
 
 Le DAG `taxi_pipeline` se déclenche **tout seul au démarrage** (`schedule="@once"`). Le run complet dure environ **18 minutes**.
 
